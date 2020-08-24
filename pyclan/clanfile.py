@@ -2,10 +2,10 @@ import csv
 import os
 import re
 
-from pyclan import filters
-from pyclan import elements
-from pyclan import errors
-from pyclan import parse
+from . import filters
+from . import elements
+from . import errors
+from . import parse
 
 from pdb import set_trace 
 import traceback
@@ -46,7 +46,6 @@ class ClanFile(object):
             exit(1)
 
         self.line_map = self.parse_file(flattenedlines, breaks)
-        print("and back")
         self.total_time = sum(line.total_time for line in self.line_map if line.is_tier_line)
         self.flat = False
         self.annotated = False
@@ -344,3 +343,36 @@ class ClanFile(object):
             for a in annots:
                 # for a in annot:
                 writer.writerow([a.tier, a.word, a.utt_type, a.present, a.speaker, a.timestamp(), a.annotation_id, ""])
+
+    def write_AB_seperate(self, fileA, fileB):
+        """
+
+        :param out:
+
+        """
+        annots = []
+        fpA = open(fileA, "w")
+        fpB = open(fileB, "w")
+        for line in self.line_map:
+
+            if line.is_tier_line and not line.in_skip_region:
+
+                if (line.tier[0] == "A"):
+                    fpA.write(str(line.onset) + "," + str(line.offset) + "," + str(line.content) + "\n")
+                elif (line.tier[0] == "B"):
+                    fpB.write(str(line.onset) + "," + str(line.offset) + "," + str(line.content) + "\n")
+
+    def write_AB_together(self, fileAB):
+        """
+
+        :param out:
+
+        """
+        annots = []
+        fpAB = open(fileAB, "w")
+        for line in self.line_map:
+
+            if line.is_tier_line and not line.in_skip_region:
+
+                if (line.tier[0] == "A" or line.tier[0] == "B"):
+                    fpAB.write(str(line.onset) + "," + str(line.offset) + "," + str(line.content) + "\n")
